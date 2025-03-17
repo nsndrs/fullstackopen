@@ -1,0 +1,31 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  line-height: 1.5;
+}
+
+input {
+  padding: 5px;
+  font-size: 16px;
+  width: 300px;
+  margin-bottom: 10px;
+}
+
+.country-list {
+  margin-top: 20px;
+}
+
+.flag {
+  max-width: 150px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.weather-icon {
+  max-width: 100px;
+}
+
+button {
+  margin-left: 10px;
+  padding: 2px 8px;
+} 
