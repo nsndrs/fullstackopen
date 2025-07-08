@@ -56,7 +56,7 @@ The server will run on port 3001 by default.
 
 ### Live Application
 
-🌐 **Live API**: [Your deployment URL will go here]
+🌐 **Live API**: https://phonebook-backend-o8y7.onrender.com
 
 ## License
 

@@ -6,6 +6,7 @@ const app = express()
 
 // Middleware
 app.use(cors())
+app.use(express.static('dist'))
 app.use(express.json())
 
 // Define custom Morgan token for request body
@@ -46,12 +47,12 @@ const generateId = () => {
 // Routes
 
 // GET all persons
-app.get('/persons', (request, response) => {
+app.get('/api/persons', (request, response) => {
   response.json(persons)
 })
 
 // GET individual person
-app.get('/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
   const person = persons.find(person => person.id === id)
   
@@ -63,7 +64,7 @@ app.get('/persons/:id', (request, response) => {
 })
 
 // POST new person
-app.post('/persons', (request, response) => {
+app.post('/api/persons', (request, response) => {
   const body = request.body
   
   if (!body.name || !body.number) {
@@ -91,7 +92,7 @@ app.post('/persons', (request, response) => {
 })
 
 // PUT update person
-app.put('/persons/:id', (request, response) => {
+app.put('/api/persons/:id', (request, response) => {
   const id = request.params.id
   const body = request.body
   
@@ -120,7 +121,7 @@ app.put('/persons/:id', (request, response) => {
 })
 
 // DELETE person
-app.delete('/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
   const initialLength = persons.length
   
@@ -144,6 +145,11 @@ app.get('/info', (request, response) => {
     <p>Phonebook has info for ${count} people</p>
     <p>${date}</p>
   `)
+})
+
+// Catch-all handler: send back React's index.html file for any non-API routes
+app.get('*', (request, response) => {
+  response.sendFile('index.html', { root: 'dist' })
 })
 
 const PORT = process.env.PORT || 3001
