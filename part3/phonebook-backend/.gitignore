@@ -7,4 +7,6 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 coverage
-.nyc_output 
+.nyc_output
+dist
+build 
