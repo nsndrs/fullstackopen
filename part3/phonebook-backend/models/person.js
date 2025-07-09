@@ -5,8 +5,11 @@ const password = process.env.MONGODB_PASSWORD || process.argv[2]
 
 if (!password) {
   console.log('MongoDB password not provided. Set MONGODB_PASSWORD environment variable.')
+  console.log('Available env vars:', Object.keys(process.env).filter(key => key.includes('MONGO')))
   process.exit(1)
 }
+
+console.log('Connecting to MongoDB with password:', password ? 'password found' : 'no password')
 
 const url = `mongodb+srv://nicholassanders11:${password}@part3.dyhczg2.mongodb.net/phonebookApp?retryWrites=true&w=majority&appName=Part3`
 
