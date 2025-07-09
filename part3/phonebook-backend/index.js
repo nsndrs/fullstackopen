@@ -1,6 +1,7 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
 
 const app = express()
 
@@ -20,47 +21,38 @@ morgan.token('body', (req, res) => {
 // Morgan middleware with custom format including request body
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-// Initial data (same as your db.json)
-let persons = [
-  {
-    id: "2",
-    name: "Ada Lovelace",
-    number: "39-44-5323523"
-  },
-  {
-    id: "3",
-    name: "Dan Abramov",
-    number: "12-43-234345"
-  },
-  {
-    id: "4",
-    name: "Mary Poppendieck",
-    number: "39-23-6423122"
-  }
-]
-
-// Helper function to generate ID
-const generateId = () => {
-  return String(Math.floor(Math.random() * 1000000))
-}
+// Data is now stored in MongoDB database
 
 // Routes
 
 // GET all persons
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  Person.find({})
+    .then(persons => {
+      response.json(persons)
+    })
+    .catch(error => {
+      console.log('Error fetching persons:', error)
+      response.status(500).json({ error: 'Failed to fetch persons' })
+    })
 })
 
 // GET individual person
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  const person = persons.find(person => person.id === id)
   
-  if (person) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
+  Person.findById(id)
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => {
+      console.log('Error fetching person:', error)
+      response.status(400).json({ error: 'malformatted id' })
+    })
 })
 
 // POST new person
@@ -73,22 +65,19 @@ app.post('/api/persons', (request, response) => {
     })
   }
   
-  // Check if person already exists
-  const existingPerson = persons.find(person => person.name === body.name)
-  if (existingPerson) {
-    return response.status(400).json({
-      error: 'name must be unique'
-    })
-  }
-  
-  const person = {
-    id: generateId(),
+  const person = new Person({
     name: body.name,
     number: body.number
-  }
+  })
   
-  persons = persons.concat(person)
-  response.json(person)
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => {
+      console.log('Error saving person:', error)
+      response.status(500).json({ error: 'Failed to save person' })
+    })
 })
 
 // PUT update person
@@ -102,49 +91,57 @@ app.put('/api/persons/:id', (request, response) => {
     })
   }
   
-  const personIndex = persons.findIndex(person => person.id === id)
-  
-  if (personIndex === -1) {
-    return response.status(404).json({
-      error: 'person not found'
-    })
-  }
-  
-  const updatedPerson = {
-    id: id,
+  const person = {
     name: body.name,
     number: body.number
   }
   
-  persons[personIndex] = updatedPerson
-  response.json(updatedPerson)
+  Person.findByIdAndUpdate(id, person, { new: true })
+    .then(updatedPerson => {
+      if (updatedPerson) {
+        response.json(updatedPerson)
+      } else {
+        response.status(404).json({ error: 'person not found' })
+      }
+    })
+    .catch(error => {
+      console.log('Error updating person:', error)
+      response.status(400).json({ error: 'malformatted id' })
+    })
 })
 
 // DELETE person
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  const initialLength = persons.length
   
-  persons = persons.filter(person => person.id !== id)
-  
-  if (persons.length === initialLength) {
-    return response.status(404).json({
-      error: 'person not found'
+  Person.findByIdAndDelete(id)
+    .then(deletedPerson => {
+      if (deletedPerson) {
+        response.status(204).end()
+      } else {
+        response.status(404).json({ error: 'person not found' })
+      }
     })
-  }
-  
-  response.status(204).end()
+    .catch(error => {
+      console.log('Error deleting person:', error)
+      response.status(400).json({ error: 'malformatted id' })
+    })
 })
 
 // Info endpoint (bonus)
 app.get('/info', (request, response) => {
-  const count = persons.length
-  const date = new Date()
-  
-  response.send(`
-    <p>Phonebook has info for ${count} people</p>
-    <p>${date}</p>
-  `)
+  Person.countDocuments({})
+    .then(count => {
+      const date = new Date()
+      response.send(`
+        <p>Phonebook has info for ${count} people</p>
+        <p>${date}</p>
+      `)
+    })
+    .catch(error => {
+      console.log('Error counting persons:', error)
+      response.status(500).json({ error: 'Failed to get info' })
+    })
 })
 
 // Catch-all handler: send back React's index.html file for any non-API routes
