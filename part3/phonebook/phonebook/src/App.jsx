@@ -47,9 +47,12 @@ const App = () => {
             setNewNumber('')
             showNotification(`Updated ${returnedPerson.name}`, 'success')
           })
-          .catch(() => {
-            showNotification(`Information of ${existingPerson.name} has already been removed from server`, 'error')
-            setPersons(persons.filter(person => person.id !== existingPerson.id))
+          .catch(error => {
+            const errorMessage = error.response?.data?.error || `Information of ${existingPerson.name} has already been removed from server`
+            showNotification(errorMessage, 'error')
+            if (error.response?.status === 404) {
+              setPersons(persons.filter(person => person.id !== existingPerson.id))
+            }
           })
       }
       return
@@ -68,21 +71,23 @@ const App = () => {
         setNewNumber('')
         showNotification(`Added ${returnedPerson.name}`, 'success')
       })
-      .catch(() => {
-        showNotification('Failed to add person', 'error')
+      .catch(error => {
+        const errorMessage = error.response?.data?.error || 'Failed to add person'
+        showNotification(errorMessage, 'error')
       })
   }
 
   const deletePerson = (id, name) => {
     if (window.confirm(`Delete ${name} ?`)) {
-      personService
+              personService
         .remove(id)
         .then(() => {
           setPersons(persons.filter(person => person.id !== id))
           showNotification(`Deleted ${name}`, 'success')
         })
-        .catch(() => {
-          showNotification(`Information of ${name} has already been removed from server`, 'error')
+        .catch(error => {
+          const errorMessage = error.response?.data?.error || `Information of ${name} has already been removed from server`
+          showNotification(errorMessage, 'error')
           setPersons(persons.filter(person => person.id !== id))
         })
     }
