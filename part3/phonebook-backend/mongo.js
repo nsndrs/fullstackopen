@@ -39,7 +39,7 @@ if (process.argv.length === 3) {
     number: number,
   })
 
-  person.save().then(result => {
+  person.save().then(() => {
     console.log(`added ${name} number ${number} to phonebook`)
     mongoose.connection.close()
   })
@@ -49,4 +49,4 @@ if (process.argv.length === 3) {
   console.log('  node mongo.js <password> - list all entries')
   console.log('  node mongo.js <password> <name> <number> - add entry')
   mongoose.connection.close()
-} 
+}

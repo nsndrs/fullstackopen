@@ -1,28 +1,5 @@
 const mongoose = require('mongoose')
 
-// Get the password from environment variable, fallback to process.argv for development
-const password = process.env.MONGODB_PASSWORD || process.argv[2]
-
-if (!password) {
-  console.log('MongoDB password not provided. Set MONGODB_PASSWORD environment variable.')
-  console.log('Available env vars:', Object.keys(process.env).filter(key => key.includes('MONGO')))
-  process.exit(1)
-}
-
-console.log('Connecting to MongoDB with password:', password ? 'password found' : 'no password')
-
-const url = `mongodb+srv://nicholassanders11:${password}@part3.dyhczg2.mongodb.net/phonebookApp?retryWrites=true&w=majority&appName=Part3`
-
-mongoose.set('strictQuery', false)
-
-mongoose.connect(url)
-  .then(() => {
-    console.log('Connected to MongoDB')
-  })
-  .catch((error) => {
-    console.log('Error connecting to MongoDB:', error.message)
-  })
-
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -53,4 +30,4 @@ personSchema.set('toJSON', {
   }
 })
 
-module.exports = mongoose.model('Person', personSchema) 
+module.exports = mongoose.model('Person', personSchema)

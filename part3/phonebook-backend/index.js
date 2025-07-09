@@ -1,9 +1,14 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const config = require('./utils/config')
+const { connectDB } = require('./utils/db')
 const Person = require('./models/person')
 
 const app = express()
+
+// Connect to database
+connectDB()
 
 // Middleware
 app.use(cors())
@@ -11,7 +16,7 @@ app.use(express.static('dist'))
 app.use(express.json())
 
 // Define custom Morgan token for request body
-morgan.token('body', (req, res) => {
+morgan.token('body', (req) => {
   if (req.method === 'POST') {
     return JSON.stringify(req.body)
   }
@@ -37,7 +42,7 @@ app.get('/api/persons', (request, response, next) => {
 // GET individual person
 app.get('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
-  
+
   Person.findById(id)
     .then(person => {
       if (person) {
@@ -52,18 +57,18 @@ app.get('/api/persons/:id', (request, response, next) => {
 // POST new person
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
-  
+
   if (!body.name || !body.number) {
     return response.status(400).json({
       error: 'name or number missing'
     })
   }
-  
+
   const person = new Person({
     name: body.name,
     number: body.number
   })
-  
+
   person.save()
     .then(savedPerson => {
       response.json(savedPerson)
@@ -75,18 +80,18 @@ app.post('/api/persons', (request, response, next) => {
 app.put('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   const body = request.body
-  
+
   if (!body.name || !body.number) {
     return response.status(400).json({
       error: 'name or number missing'
     })
   }
-  
+
   const person = {
     name: body.name,
     number: body.number
   }
-  
+
   Person.findByIdAndUpdate(id, person, { new: true, runValidators: true })
     .then(updatedPerson => {
       if (updatedPerson) {
@@ -101,7 +106,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 // DELETE person
 app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
-  
+
   Person.findByIdAndDelete(id)
     .then(deletedPerson => {
       if (deletedPerson) {
@@ -154,7 +159,6 @@ app.get('*', (request, response) => {
 
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 3001
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-}) 
+app.listen(config.PORT, () => {
+  console.log(`Server running on port ${config.PORT}`)
+})

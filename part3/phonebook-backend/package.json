@@ -7,6 +7,8 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "build:ui": "rm -rf dist && cd ../phonebook/phonebook && npm run build && cp -r dist ../../phonebook-backend",
     "deploy": "npm run build:ui && git add . && git commit -m 'Updated frontend' && git push",
     "deploy:full": "npm run build:ui && git add . && git commit -m 'Updated frontend' && git push && npm run deploy"
@@ -15,11 +17,13 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
     "express": "^4.18.2",
     "mongoose": "^8.16.2",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "eslint": "^9.30.1",
     "nodemon": "^3.0.1"
   }
 }
