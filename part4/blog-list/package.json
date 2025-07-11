@@ -4,11 +4,11 @@
   "description": "Blog list backend for Full Stack Open part 4",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
-    "watch": "node --watch app.js",
-    "test": "node --test",
-    "test:watch": "node --test --watch",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "watch": "node --watch index.js",
+    "test": "NODE_ENV=test node --test",
+    "test:watch": "NODE_ENV=test node --test --watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
