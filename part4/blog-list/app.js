@@ -45,6 +45,47 @@ app.post('/api/blogs', async (request, response, next) => {
   }
 })
 
+app.delete('/api/blogs/:id', async (request, response, next) => {
+  try {
+    const deletedBlog = await Blog.findByIdAndDelete(request.params.id)
+    
+    if (!deletedBlog) {
+      return response.status(404).json({ error: 'blog not found' })
+    }
+    
+    response.status(204).end()
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.put('/api/blogs/:id', async (request, response, next) => {
+  try {
+    const body = request.body
+    
+    // For updates, we're more lenient - we don't require all fields
+    const blog = {
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes
+    }
+
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { 
+      new: true, 
+      runValidators: true 
+    })
+    
+    if (!updatedBlog) {
+      return response.status(404).json({ error: 'blog not found' })
+    }
+    
+    response.json(updatedBlog)
+  } catch (error) {
+    next(error)
+  }
+})
+
 // Health check endpoint
 app.get('/health', (request, response) => {
   response.status(200).json({ status: 'OK', timestamp: new Date().toISOString() })

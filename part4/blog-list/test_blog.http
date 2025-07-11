@@ -30,4 +30,47 @@ Content-Type: application/json
 ###
 
 ### Test GET all blogs again to see the added blogs
-GET http://localhost:3003/api/blogs 
+GET http://localhost:3003/api/blogs
+
+###
+
+### Test UPDATE a blog (increment likes)
+PUT http://localhost:3003/api/blogs/REPLACE_WITH_ACTUAL_ID
+Content-Type: application/json
+
+{
+  "likes": 15
+}
+
+###
+
+### Test UPDATE a blog (full update)
+PUT http://localhost:3003/api/blogs/REPLACE_WITH_ACTUAL_ID
+Content-Type: application/json
+
+{
+  "title": "Updated React patterns",
+  "author": "Michael Chan",
+  "url": "https://reactpatterns.com/",
+  "likes": 20
+}
+
+###
+
+### Test DELETE a blog
+DELETE http://localhost:3003/api/blogs/REPLACE_WITH_ACTUAL_ID
+
+###
+
+### Test DELETE non-existent blog (should return 404)
+DELETE http://localhost:3003/api/blogs/507f1f77bcf86cd799439011
+
+###
+
+### Test PUT non-existent blog (should return 404)
+PUT http://localhost:3003/api/blogs/507f1f77bcf86cd799439011
+Content-Type: application/json
+
+{
+  "likes": 10
+} 

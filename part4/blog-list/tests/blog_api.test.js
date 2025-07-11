@@ -106,6 +106,114 @@ describe('when there is initially some blogs saved', () => {
       assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
     })
   })
+
+  describe('deletion of a blog', () => {
+    test('succeeds with status code 204 if id is valid', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToDelete = blogsAtStart[0]
+
+      await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+      const blogsAtEnd = await helper.blogsInDb()
+
+      assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
+
+      const titles = blogsAtEnd.map(blog => blog.title)
+      assert(!titles.includes(blogToDelete.title))
+    })
+
+    test('fails with status code 404 if blog does not exist', async () => {
+      const validNonexistingId = await helper.nonExistingId()
+
+      await api
+        .delete(`/api/blogs/${validNonexistingId}`)
+        .expect(404)
+    })
+
+    test('fails with status code 400 if id is invalid', async () => {
+      const invalidId = '5a3d5da59070081a82a3445'
+
+      await api
+        .delete(`/api/blogs/${invalidId}`)
+        .expect(400)
+    })
+  })
+
+  describe('updating a blog', () => {
+    test('succeeds with valid data', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToUpdate = blogsAtStart[0]
+
+      const updatedBlog = {
+        title: blogToUpdate.title,
+        author: blogToUpdate.author,
+        url: blogToUpdate.url,
+        likes: blogToUpdate.likes + 1
+      }
+
+      const response = await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(updatedBlog)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+      assert.strictEqual(response.body.likes, blogToUpdate.likes + 1)
+    })
+
+    test('succeeds when updating only likes', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToUpdate = blogsAtStart[0]
+
+      const updatedData = {
+        likes: blogToUpdate.likes + 5
+      }
+
+      const response = await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(updatedData)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+      assert.strictEqual(response.body.likes, blogToUpdate.likes + 5)
+      assert.strictEqual(response.body.title, blogToUpdate.title)
+      assert.strictEqual(response.body.author, blogToUpdate.author)
+      assert.strictEqual(response.body.url, blogToUpdate.url)
+    })
+
+    test('fails with status code 404 if blog does not exist', async () => {
+      const validNonexistingId = await helper.nonExistingId()
+
+      const updatedBlog = {
+        title: 'Updated Title',
+        author: 'Updated Author',
+        url: 'http://updated.com',
+        likes: 10
+      }
+
+      await api
+        .put(`/api/blogs/${validNonexistingId}`)
+        .send(updatedBlog)
+        .expect(404)
+    })
+
+    test('fails with status code 400 if id is invalid', async () => {
+      const invalidId = '5a3d5da59070081a82a3445'
+
+      const updatedBlog = {
+        title: 'Updated Title',
+        author: 'Updated Author', 
+        url: 'http://updated.com',
+        likes: 10
+      }
+
+      await api
+        .put(`/api/blogs/${invalidId}`)
+        .send(updatedBlog)
+        .expect(400)
+    })
+  })
 })
 
 after(async () => {
